@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/nherson/brewski/measurement"
 )
 
 // OnewireSysfsDir is the directory where onewire sysfs device interfaces
@@ -38,50 +41,63 @@ func NewDS18B20(deviceID string) *DS18B20 {
 // ReadTemperature reads data from the sensor and saves the temperature reading (celsius)
 // into the sensors lastReadTemperatureC field
 // if there is a problem reading data an error is returned
-func (d *DS18B20) ReadTemperature() (float32, float32, error) {
+func (d *DS18B20) Read() (measurement.Sample, error) {
 	dataFile := d.getSysfsPath()
 	b, err := ioutil.ReadFile(dataFile)
 	if err != nil {
-		return 0, 0, err
+		return nil, err
 	}
 	// simple sanity checks
 	// 1. make sure the output is exactly 2 lines
 	lines := strings.Split(string(b), "\n")
 	if len(lines) != 2 {
-		return 0, 0, fmt.Errorf("unexpected number of lines in sensor output: %s", string(len(lines)))
+		return nil, fmt.Errorf("unexpected number of lines in sensor output: %s", string(len(lines)))
 	}
 	// 2. Make sure the device is ready to read (first line ends in 'YES')
 	if !d.isReady(lines[0]) {
-		return 0, 0, fmt.Errorf("device not ready")
+		return nil, fmt.Errorf("device not ready")
 	}
 	return d.parseTemperature(lines[1])
 }
 
 // Returns a celsius and fahrenheit reading given the data line for a sensor
 // reading. Returns an error if there is an issue parsing the line
-func (d *DS18B20) parseTemperature(dataLine string) (float32, float32, error) {
+func (d *DS18B20) parseTemperature(dataLine string) (measurement.Sample, error) {
 	// Take the last field and split on '=' (we expect a format `t=$temp`)
 	fields := strings.Split(dataLine, " ")
 	thermReading := strings.Split(fields[len(fields)-1], "=")
+
 	// Expect the above split to return 2 fields (the `t` and the `$temp`)
 	if len(thermReading) != 2 {
-		return 0, 0, fmt.Errorf("unknown error reading temperature from sensor")
+		return nil, fmt.Errorf("unknown error reading temperature from sensor")
 	}
 	// attempt to parse into a float
 	// the actual data value is always a signed int, but lets parse right
 	// into a float because we will immediately be dividing by 1000
 	rawReading, err := strconv.ParseFloat(thermReading[1], 32)
 	if err != nil {
-		return 0, 0, fmt.Errorf("error parsing temperature: %s", err.Error())
+		return nil, fmt.Errorf("error parsing temperature: %s", err.Error())
 	}
+	t := time.Now()
+	// create a sample using the retrieved data
+	sample := measurement.NewDeviceSample(d.Name())
 	// convert from millicelsius(?) to celsius
 	c := float32(rawReading) / 1000
+	// add the celsius reading to the sample
+	sample.AddDatapoint("celsius", c, t)
 	// convert from celsius to fahrenheit
 	f := celsiusToFahrenheit(c)
+	sample.AddDatapoint("fahrenheit", f, t)
 
 	// return the results
-	return c, f, nil
+	return sample, nil
 
+}
+
+// Name returns the formatted name of the sensor, in the format
+// DS18B20-<device id>
+func (d *DS18B20) Name() string {
+	return fmt.Sprintf("DS18B20-%s", d.ID)
 }
 
 // checks if the reading indicates that the sensor data

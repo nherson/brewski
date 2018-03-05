@@ -8,7 +8,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/nherson/brewski/temperature"
+	"github.com/nherson/brewski/device"
+	"github.com/nherson/brewski/device/temperature"
+	"github.com/nherson/brewski/handlers"
 )
 
 func main() {
@@ -30,14 +32,14 @@ func main() {
 	// Create a logger for temperature sensors
 	tempLogger := logger.With(zap.String("component", "temperature"))
 
-	var temperatureSensors []temperature.Poller
+	var temperatureSensors []device.Poller
 	for _, id := range GetDS18B20IDs() {
 		// Create a ChainCallback to record temperature readings
-		callbackChain := temperature.NewChainCallback()
+		callbackChain := handlers.NewChainCallback()
 		// Add a logging callback to the callback chain... it's always a good
 		// idea to log what is going on!
 		callbackChain.RegisterCallback(
-			temperature.NewLoggingCallback(tempLogger),
+			handlers.NewLoggingCallback(tempLogger),
 		)
 		// If influxDB is enabled, create a callback to send sensor readings to it and
 		// register the callback into the chain
@@ -46,7 +48,7 @@ func main() {
 			tags["device"] = id
 			database := GetInfluxDBDatabase()
 			endpoint := GetInfluxDBEndpoint()
-			influxDBCallback, err := temperature.NewInfluxDBCallback(endpoint, database, tags)
+			influxDBCallback, err := handlers.NewInfluxDBCallback(endpoint, database, tags)
 			if err != nil {
 				logger.Fatal(fmt.Sprintf("error initializing influxdb callback: %s", err.Error()),
 					zap.String("component", "init"),
@@ -54,14 +56,15 @@ func main() {
 			}
 			callbackChain.RegisterCallback(influxDBCallback)
 		}
-		sensor := temperature.NewDS18B20Sensor(
-			id,
+		ds18b20Reader := temperature.NewDS18B20(id)
+		deviceSensor := device.NewSensor(
+			ds18b20Reader,
 			pollingInterval,
 			tempLogger.With(zap.String("device", id)),
 		)
-		sensor.SetCallback(callbackChain)
-		temperatureSensors = append(temperatureSensors, sensor)
-		sensor.Start()
+		deviceSensor.SetCallback(callbackChain)
+		temperatureSensors = append(temperatureSensors, deviceSensor)
+		deviceSensor.Start()
 	}
 	waitForExit(logger)
 }

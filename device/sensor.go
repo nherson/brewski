@@ -1,8 +1,9 @@
-package temperature
+package device
 
 import (
 	"time"
 
+	"github.com/nherson/brewski/handlers"
 	"go.uber.org/zap"
 )
 
@@ -11,36 +12,37 @@ import (
 type Poller interface {
 	Start()
 	Stop()
-	SetCallback(SensorCallback)
+	SetCallback(handlers.Callback)
 }
 
 // Sensor is a simple implementation of a TemperaturePoller
 // It sleeps for
 type Sensor struct {
-	tr       Reader
+	reader   Reader
 	logger   *zap.Logger
 	interval time.Duration
 	control  chan bool
-	callback SensorCallback
+	callback handlers.Callback
 }
 
-// NewDS18B20Sensor creates a new polling sensor for a DS18B20 temperature probe
-// with the given device ID using onewire protocol via w1-gpio kernel module
-// using sysfs for reading data.
-func NewDS18B20Sensor(deviceID string, i time.Duration, l *zap.Logger) *Sensor {
-	ds18b20 := NewDS18B20(deviceID)
+// NewSensor creates a new polling sensor for a given device reader.
+// The device reader will provide measurement samples, and this sensor
+// will act as a harness to process retrieved datapoints.
+// By default, the sensor will start with a simple stdout handler
+// until provided something more specific using the SetCallback method
+func NewSensor(r Reader, i time.Duration, l *zap.Logger) *Sensor {
 	return &Sensor{
-		tr:       ds18b20,
+		reader:   r,
 		logger:   l,
 		interval: i,
 		control:  make(chan bool, 1),
-		callback: NewStdoutCallback(),
+		callback: handlers.NewStdoutCallback(),
 	}
 }
 
 // SetCallback assigns a callback function for the sensor
 // for when polling is complete
-func (s *Sensor) SetCallback(scb SensorCallback) {
+func (s *Sensor) SetCallback(scb handlers.Callback) {
 	s.callback = scb
 }
 
@@ -56,14 +58,15 @@ func (s *Sensor) Start() {
 			select {
 			case <-intervalTicker:
 				// Read the temperature from the device
-				c, f, err := s.tr.ReadTemperature()
+				sample, err := s.reader.Read()
 				if err != nil {
-					s.logger.Error("error reading temperature",
+					s.logger.Error("error reading data from device",
+						zap.String("device", s.reader.Name()),
 						zap.String("error", err.Error()),
 					)
 				}
 				// Process the temperature reading
-				err = s.callback.Handle(c, f)
+				err = s.callback.Handle(sample)
 				if err != nil {
 					s.logger.Error("error recording temperature reading",
 						zap.String("error", err.Error()),
