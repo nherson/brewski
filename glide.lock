@@ -1,18 +1,49 @@
-hash: 5b1efa69e903e17efef441ac182155701e8a0c190bd4217d13b9074ba0d44080
-updated: 2018-03-04T18:41:55.42666794-08:00
+hash: 1ac6679d04768e484d4b0857574cf51976ff60620556b748c35b2d3d3d95e703
+updated: 2018-03-11T15:25:46.224158516-07:00
 imports:
+- name: github.com/go-ble/ble
+  version: 4f0cfa416e6b38f2cba99cb776d9e75ccf740713
+  subpackages:
+  - darwin
+  - examples/lib/dev
+  - linux
+  - linux/adv
+  - linux/att
+  - linux/gatt
+  - linux/hci
+  - linux/hci/cmd
+  - linux/hci/evt
+  - linux/hci/socket
 - name: github.com/hashicorp/errwrap
   version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
 - name: github.com/hashicorp/go-multierror
   version: b7773ae218740a7be65057fc60b366a49b538a44
 - name: github.com/influxdata/influxdb
-  version: 35b44cc2f0ac78c26a852ea1f0a5992a2f440a76
+  version: 6ac835404e7e64ea7299a6eebcce1ab1ef15fe3c
   subpackages:
   - client/v2
   - models
   - pkg/escape
+- name: github.com/mattn/go-colorable
+  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+- name: github.com/mattn/go-isatty
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mgutz/ansi
+  version: 9520e82c474b0a04dd04f8a40959027271bab992
+- name: github.com/mgutz/logxi
+  version: aebf8a7d67ab4625e0fd4a665766fef9a709161b
+  subpackages:
+  - v1
+- name: github.com/pkg/errors
+  version: 816c9085562cd7ee03e7f8188a1cfd942858cded
+- name: github.com/raff/goble
+  version: efeac611681b89806d673dfbd8fc1690ca6bd093
+  subpackages:
+  - xpc
 - name: github.com/stretchr/testify
   version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
+  subpackages:
+  - assert
 - name: go.uber.org/atomic
   version: 8474b86a5a6f79c443ce4b2992817ff32cf208b8
 - name: go.uber.org/multierr
@@ -25,4 +56,16 @@ imports:
   - internal/color
   - internal/exit
   - zapcore
-testImports: []
+- name: golang.org/x/sys
+  version: 062cd7e4e68206d8bab9b18396626e855c992658
+  subpackages:
+  - unix
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib

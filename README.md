@@ -41,6 +41,10 @@ Developing
 ---
 Checkout the project with `go get -u github.com/nherson/brewski`. This project uses Glide for dependency management. Use `glide install` to setup your vendor directory.
 
+Additional Tools
+---
+There is a script to discover Tilt Hydrometers in `cmd/tilt-finder`.  Use `go run cmd/tilt-finder/main.go` or `go build ./cmd/tilt-finder && ./tilt-finder` to run. The script will listen for Bluetooth LE advertisements. When a Tilt is found, it will print the color discovered along with the address that can be used in the `brewski` configuration to record measurements.
+
 Todo
 ---
 * Tests for existing codebase
