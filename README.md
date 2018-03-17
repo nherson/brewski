@@ -21,12 +21,13 @@ The result is a library of devices and outputs that allow the user to link toget
 
 Current Devices Supported
 ---
-* Temperature
-  * DS18B20 (a very cheap temperature probe using onewire protocol, connected via sysfs)
+* DS18B20 (a very cheap temperature probe using onewire protocol, connected via sysfs)
+* Tilt Hydrometer (all colors)
 
 Device Support Wishlist
 ---
- * Tilt Hydrometer (I need to buy one)
+ * BrewNanny
+ * Some digital pH meters
 
 Output Methods Supported
 ---
@@ -36,6 +37,7 @@ Output Methods Supported
 Output Methods Wishlist
 ---
 * Sending data to external process's `stdin` using defined text protocol/format (ala statsite stream commands)
+* Fridge temperature controllers (future)
 
 Developing
 ---
@@ -43,10 +45,12 @@ Checkout the project with `go get -u github.com/nherson/brewski`. This project u
 
 Additional Tools
 ---
-There is a script to discover Tilt Hydrometers in `cmd/tilt-finder`.  Use `go run cmd/tilt-finder/main.go` or `go build ./cmd/tilt-finder && ./tilt-finder` to run. The script will listen for Bluetooth LE advertisements. When a Tilt is found, it will print the color discovered along with the address that can be used in the `brewski` configuration to record measurements.
+There is a script to discover Tilt Hydrometers in `cmd/tilt-finder`.  Use `go run cmd/tilt-finder/main.go` or `go build ./cmd/tilt-finder && ./tilt-finder` to run. The script will listen for Bluetooth LE advertisements. When a Tilt is found, it will print the color discovered. Remember that Tilt Hydrometers standing straight up go into an idle mode and stop advertising data!
 
 Todo
 ---
-* Tests for existing codebase
+* Tests for Tilt
 * Example setting up raspberry pi with brewski, influxdb, and grafana
 * Configuration file support
+* Rewrite executable into something more versatile and well thought out
+* Remove device categorization

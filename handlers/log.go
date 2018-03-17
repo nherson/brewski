@@ -29,9 +29,13 @@ func (l *LoggingCallback) Handle(s measurement.Sample) error {
 	for _, d := range s.Datapoints() {
 		sampleFields = append(sampleFields, zap.Float32(d.Name(), d.Value()))
 	}
-
-	l.logger.Info("device successfully read",
-		sampleFields...,
-	)
+	// if no data given in sample, report that instead
+	if len(sampleFields) == 1 {
+		l.logger.Info("no data from device")
+	} else {
+		l.logger.Info("device successfully read",
+			sampleFields...,
+		)
+	}
 	return nil
 }

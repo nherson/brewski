@@ -66,6 +66,19 @@ func main() {
 		temperatureSensors = append(temperatureSensors, deviceSensor)
 		deviceSensor.Start()
 	}
+	// Just try making a tilt device and tracking it with basic logging
+	tilt, err := temperature.NewTiltHydrometer()
+	tiltChain := handlers.NewChainCallback()
+	tiltChain.RegisterCallback(
+		handlers.NewLoggingCallback(tempLogger),
+	)
+	tiltSensor := device.NewSensor(
+		tilt,
+		pollingInterval,
+		tempLogger.With(zap.String("device", "tilt")),
+	)
+	tiltSensor.SetCallback(tiltChain)
+	tiltSensor.Start()
 	waitForExit(logger)
 }
 
