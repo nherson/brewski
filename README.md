@@ -54,3 +54,4 @@ Todo
 * Configuration file support
 * Rewrite executable into something more versatile and well thought out
 * Remove device categorization
+* Add arbitrary tag support to samples or datapoints
