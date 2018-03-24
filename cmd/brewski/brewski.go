@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/nherson/brewski/device"
-	"github.com/nherson/brewski/device/temperature"
 	"github.com/nherson/brewski/handlers"
 )
 
@@ -27,7 +26,7 @@ func main() {
 	pollingInterval := GetPollingInterval()
 
 	// Set the sysfs device path
-	temperature.SetOnewireSysfsDir(GetOnewireSysfsDir())
+	device.SetOnewireSysfsDir(GetOnewireSysfsDir())
 
 	// Create a logger for temperature sensors
 	tempLogger := logger.With(zap.String("component", "temperature"))
@@ -44,11 +43,9 @@ func main() {
 		// If influxDB is enabled, create a callback to send sensor readings to it and
 		// register the callback into the chain
 		if UseInfluxDB() {
-			tags := make(map[string]string)
-			tags["device"] = id
 			database := GetInfluxDBDatabase()
 			endpoint := GetInfluxDBEndpoint()
-			influxDBCallback, err := handlers.NewInfluxDBCallback(endpoint, database, tags)
+			influxDBCallback, err := handlers.NewInfluxDBCallback(endpoint, database)
 			if err != nil {
 				logger.Fatal(fmt.Sprintf("error initializing influxdb callback: %s", err.Error()),
 					zap.String("component", "init"),
@@ -56,7 +53,7 @@ func main() {
 			}
 			callbackChain.RegisterCallback(influxDBCallback)
 		}
-		ds18b20Reader := temperature.NewDS18B20(id)
+		ds18b20Reader := device.NewDS18B20(id)
 		deviceSensor := device.NewSensor(
 			ds18b20Reader,
 			pollingInterval,
@@ -67,15 +64,15 @@ func main() {
 		deviceSensor.Start()
 	}
 	// Just try making a tilt device and tracking it with basic logging
-	tilt, err := temperature.NewTiltHydrometer()
+	tilt, err := device.NewTiltHydrometer()
 	tiltChain := handlers.NewChainCallback()
 	tiltChain.RegisterCallback(
-		handlers.NewLoggingCallback(tempLogger),
+		handlers.NewLoggingCallback(logger),
 	)
 	tiltSensor := device.NewSensor(
 		tilt,
 		pollingInterval,
-		tempLogger.With(zap.String("device", "tilt")),
+		logger.With(zap.String("device", "tilt")),
 	)
 	tiltSensor.SetCallback(tiltChain)
 	tiltSensor.Start()

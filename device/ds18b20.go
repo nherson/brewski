@@ -1,4 +1,4 @@
-package temperature
+package device
 
 // Contains a Sensor implementation for the DS18B20 temperature probe
 
@@ -41,7 +41,7 @@ func NewDS18B20(deviceID string) *DS18B20 {
 // ReadTemperature reads data from the sensor and saves the temperature reading (celsius)
 // into the sensors lastReadTemperatureC field
 // if there is a problem reading data an error is returned
-func (d *DS18B20) Read() (measurement.Sample, error) {
+func (d *DS18B20) Read() ([]measurement.Sample, error) {
 	dataFile := d.getSysfsPath()
 	b, err := ioutil.ReadFile(dataFile)
 	if err != nil {
@@ -62,7 +62,7 @@ func (d *DS18B20) Read() (measurement.Sample, error) {
 
 // Returns a celsius and fahrenheit reading given the data line for a sensor
 // reading. Returns an error if there is an issue parsing the line
-func (d *DS18B20) parseTemperature(dataLine string) (measurement.Sample, error) {
+func (d *DS18B20) parseTemperature(dataLine string) ([]measurement.Sample, error) {
 	// Take the last field and split on '=' (we expect a format `t=$temp`)
 	fields := strings.Split(dataLine, " ")
 	thermReading := strings.Split(fields[len(fields)-1], "=")
@@ -81,6 +81,8 @@ func (d *DS18B20) parseTemperature(dataLine string) (measurement.Sample, error) 
 	t := time.Now()
 	// create a sample using the retrieved data
 	sample := measurement.NewDeviceSample(d.Name())
+	// Add the device ID to the sample as a tag
+	sample.AddTag("id", d.ID)
 	// convert from millicelsius(?) to celsius
 	c := float32(rawReading) / 1000
 	// add the celsius reading to the sample
@@ -90,7 +92,9 @@ func (d *DS18B20) parseTemperature(dataLine string) (measurement.Sample, error) 
 	sample.AddDatapoint("fahrenheit", f, t)
 
 	// return the results
-	return sample, nil
+	// the Reader interface expects an array of samples, but this device is very simple,
+	// so just return the single sample alone in an array... it just has the temp
+	return []measurement.Sample{sample}, nil
 
 }
 

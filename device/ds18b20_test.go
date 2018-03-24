@@ -1,25 +1,25 @@
-package temperature
+package device
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDS18B20Read(t *testing.T) {
-	SetOnewireSysfsDir("../../testdata/temperature/ds18b20")
+	SetOnewireSysfsDir("../testdata/temperature/ds18b20")
 
 	probe := NewDS18B20("28-0123456789abcd")
 
 	// There is a dummy file to 'read' data from in this repo.
 	// Read data from there and make sure it looks ok
-	sample, err := probe.Read()
+	samples, err := probe.Read()
+	assert.Equal(t, 1, len(samples))
 
 	assert.Nil(t, err)
-	if err == nil {
-		fmt.Println("no error from Read()")
-	}
+
+	sample := samples[0]
+
 	assert.NotNil(t, sample)
 	assert.Equal(t, 2, len(sample.Datapoints()))
 	fahrenheitDatapointExists := false

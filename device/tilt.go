@@ -1,11 +1,10 @@
-package temperature
+package device
 
 import (
 	"bytes"
 	"context"
 	"encoding/binary"
 	"encoding/hex"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -94,14 +93,13 @@ func (ad *averagedData) addData(gravity, temperature float32) {
 	}
 }
 
-// TODO: implement
 // Read reads any data that has been advertised by the tilt since last Read()
 // and returns that. If no advertisements have been made by any tilt devices since
 // last call to Read, this will return an empty sample with no Datapoints
-func (th *TiltHydrometer) Read() (measurement.Sample, error) {
+func (th *TiltHydrometer) Read() ([]measurement.Sample, error) {
 	t := time.Now()
 	advertisements := th.bluetooth.GetAdvertisements()
-	sample := measurement.NewDeviceSample("tilt")
+	samples := []measurement.Sample{}
 	// Process all the newly received advertisements in preparation
 	// for returning the most accurate readings possible.
 	// If we have received multiple advertisements for the same device
@@ -122,14 +120,15 @@ func (th *TiltHydrometer) Read() (measurement.Sample, error) {
 		if !data.seen {
 			continue
 		}
-		colorTemp := fmt.Sprintf("%s-temperature", color)
-		colorGravity := fmt.Sprintf("%s-gravity", color)
-		sample.AddDatapoint(colorTemp, data.temperature, t)
-		sample.AddDatapoint(colorGravity, data.gravity, t)
+		sample := measurement.NewDeviceSample("tilt")
+		sample.AddTag("color", color)
+		sample.AddDatapoint("temperature", data.temperature, t)
+		sample.AddDatapoint("gravity", data.gravity, t)
+		samples = append(samples, sample)
 	}
 	// Clear the recent data counts to prepare for the next read window
 	th.data.clearRecentData()
-	return sample, nil
+	return samples, nil
 }
 
 func parseTiltData(a ble.Advertisement) (float32, float32) {

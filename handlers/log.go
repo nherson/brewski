@@ -26,6 +26,9 @@ func NewLoggingCallback(l *zap.Logger) *LoggingCallback {
 func (l *LoggingCallback) Handle(s measurement.Sample) error {
 	sampleFields := []zapcore.Field{}
 	sampleFields = append(sampleFields, zap.String("device", s.DeviceName()))
+	for k, v := range s.Tags() {
+		sampleFields = append(sampleFields, zap.String(k, v))
+	}
 	for _, d := range s.Datapoints() {
 		sampleFields = append(sampleFields, zap.Float32(d.Name(), d.Value()))
 	}

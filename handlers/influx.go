@@ -9,14 +9,13 @@ import (
 
 // InfluxDBCallback sends sensor data to a specified InfluxDB endpoint
 type InfluxDBCallback struct {
-	c    client.Client
-	tags map[string]string
-	db   string
+	c  client.Client
+	db string
 }
 
 // NewInfluxDBCallback returns an InfluxDBCallback that can be used to send sensor data to the configured
 // influxDB endpoint.  The passed in tags will be included in every callback invocation
-func NewInfluxDBCallback(addr string, database string, tags map[string]string) (*InfluxDBCallback, error) {
+func NewInfluxDBCallback(addr string, database string) (*InfluxDBCallback, error) {
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr: "http://localhost:8086",
 	})
@@ -24,9 +23,8 @@ func NewInfluxDBCallback(addr string, database string, tags map[string]string) (
 		return nil, err
 	}
 	return &InfluxDBCallback{
-		c:    c,
-		tags: tags,
-		db:   database,
+		c:  c,
+		db: database,
 	}, nil
 }
 
@@ -48,7 +46,7 @@ func (icb *InfluxDBCallback) Handle(s measurement.Sample) error {
 	for _, d := range s.Datapoints() {
 		fields[d.Name()] = d.Value()
 	}
-	pt, err := client.NewPoint("temperature", icb.tags, fields, time.Now())
+	pt, err := client.NewPoint(s.DeviceName(), s.Tags(), fields, time.Now())
 	if err != nil {
 		return err
 	}

@@ -58,19 +58,21 @@ func (s *Sensor) Start() {
 			select {
 			case <-intervalTicker:
 				// Read the temperature from the device
-				sample, err := s.reader.Read()
+				samples, err := s.reader.Read()
 				if err != nil {
 					s.logger.Error("error reading data from device",
 						zap.String("device", s.reader.Name()),
 						zap.String("error", err.Error()),
 					)
 				}
-				// Process the temperature reading
-				err = s.callback.Handle(sample)
-				if err != nil {
-					s.logger.Error("error recording temperature reading",
-						zap.String("error", err.Error()),
-					)
+				// Process the readings
+				for _, sample := range samples {
+					err = s.callback.Handle(sample)
+					if err != nil {
+						s.logger.Error("error handling reading",
+							zap.String("error", err.Error()),
+						)
+					}
 				}
 			case <-s.control:
 				return
