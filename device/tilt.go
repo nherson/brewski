@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -112,6 +113,7 @@ func (th *TiltHydrometer) Read() ([]measurement.Sample, error) {
 		}
 		// parse out values for temp and gravity
 		temp, gravity := parseTiltData(a)
+		fmt.Printf("TEMP: %f, GRAVITY: %f\n", temp, gravity)
 		th.data[color].addData(gravity, temp)
 	}
 	// Collect all the tilt data gathered and report it into the sample to return
@@ -209,6 +211,7 @@ func (bs *bluetoothScanner) GetAdvertisements() []ble.Advertisement {
 	// make the array to return
 	toReturn := make([]ble.Advertisement, len(bs.advertisements))
 	copy(toReturn, bs.advertisements)
+	bs.advertisements = []ble.Advertisement{}
 	return toReturn
 }
 

@@ -1,5 +1,8 @@
 package main
 
+// Use this executable to see if you can find Tilt Hydrometers nearby.
+// Will print to stdout when a Tilt is discovered.
+
 import (
 	"bytes"
 	"context"
