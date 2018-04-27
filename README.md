@@ -49,9 +49,6 @@ There is a script to discover Tilt Hydrometers in `cmd/tilt-finder`.  Use `go ru
 
 Todo
 ---
-* Tests for Tilt
 * Example setting up raspberry pi with brewski, influxdb, and grafana
 * Configuration file support
 * Rewrite executable into something more versatile and well thought out
-* Remove device categorization
-* Add arbitrary tag support to samples or datapoints
