@@ -1,7 +1,7 @@
 Brewski
 ===
 
-Brewski is a command-line tool written in Go to monitor your homebrewing process. It will track various metrics regarding the status of your homebrew and allow for handling that data in various ways using configurable callbacks (logging, timeseries database, etc)
+Brewski is an application written in Go to monitor your homebrewing process. It will track various metrics regarding the status of your homebrew and allow for handling that data in various ways using configurable callbacks (logging, timeseries database, etc)
 
 Motivation
 ---
