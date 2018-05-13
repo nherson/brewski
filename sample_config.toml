@@ -1,0 +1,44 @@
+# Global configs and defaults
+[global]
+# For ds18b20's, which directory the sysfs data
+# can be found
+onewire-sysfs-dir = "./testdata/temperature/ds18b20"
+# The time that each device sleeps before waking up
+# and reading from each device
+polling-interval = "1s"
+
+# Uniquely named outputs, namespaced on the type of
+# output being configured. Names still need to be
+# globally unique
+[outputs.influxdb.myinfluxdbserver]
+address = "http://localhost:8086"
+database = "brewski"
+
+[outputs.log.tiltlogging]
+# Empty def uses defaults
+
+
+# While you can theoretically define multiple tilt configs here, you only need one
+# configuration block that will capture all tilt colors and supply outputs with the 
+# proper color as a tag in the measurement sample. Using a sane generic name for your
+# "single" tilt device here like 'tilt-hydrometer' is recommended
+[devices.tilt.tilt-hydrometers]
+    outputs = ["myinfluxdbserver", "tiltlogging"]
+
+
+[devices.ds18b20.the-one-in-the-fermentor]
+id = "28-0123456789abcd"
+outputs = ["myinfluxdbserver"]
+
+[devices.ds18b20.the-one-for-ambient-temps]
+id = "28-somesecondID"
+outputs = ["myinfluxdbserver"]
+
+# A dummy-device is included in the codebase to
+# help test output configurations without needing
+# a working device
+[devices.dummy-device.testdevice]
+possible-values = [1.2, 2.3, 3.4, 4.5]
+outputs = ["myinfluxdbserver"]
+
+

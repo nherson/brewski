@@ -1,4 +1,4 @@
-package handlers
+package outputs
 
 import (
 	"time"
@@ -17,7 +17,7 @@ type InfluxDBCallback struct {
 // influxDB endpoint.  The passed in tags will be included in every callback invocation
 func NewInfluxDBCallback(addr string, database string) (*InfluxDBCallback, error) {
 	c, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr: "http://localhost:8086",
+		Addr: addr,
 	})
 	if err != nil {
 		return nil, err

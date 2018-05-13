@@ -50,5 +50,6 @@ There is a script to discover Tilt Hydrometers in `cmd/tilt-finder`.  Use `go ru
 Todo
 ---
 * Example setting up raspberry pi with brewski, influxdb, and grafana
-* Configuration file support
-* Rewrite executable into something more versatile and well thought out
+* Outputs for alarming on unexpected/bad data
+* Calibration support for Tilt
+* Remove the logger output and make it default everywhere

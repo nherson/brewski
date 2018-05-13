@@ -26,15 +26,17 @@ func SetOnewireSysfsDir(dir string) {
 
 // DS18B20 represents a temperature sensor
 type DS18B20 struct {
-	ID string
+	name string
+	ID   string
 }
 
 // NewDS18B20 creates a new sensor struct. Once created, the sensor can be
 // launched using Start(), where it will perioically poll data from the sensor
 // and feed it into a callback function
-func NewDS18B20(deviceID string) *DS18B20 {
+func NewDS18B20(name string, deviceID string) *DS18B20 {
 	return &DS18B20{
-		ID: deviceID,
+		name: name,
+		ID:   deviceID,
 	}
 }
 
@@ -101,7 +103,7 @@ func (d *DS18B20) parseTemperature(dataLine string) ([]measurement.Sample, error
 // Name returns the formatted name of the sensor, in the format
 // DS18B20-<device id>
 func (d *DS18B20) Name() string {
-	return fmt.Sprintf("DS18B20-%s", d.ID)
+	return d.name
 }
 
 // checks if the reading indicates that the sensor data

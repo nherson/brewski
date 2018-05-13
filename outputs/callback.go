@@ -1,4 +1,4 @@
-package handlers
+package outputs
 
 import "github.com/nherson/brewski/measurement"
 

@@ -9,7 +9,7 @@ import (
 func TestDS18B20Read(t *testing.T) {
 	SetOnewireSysfsDir("../testdata/temperature/ds18b20")
 
-	probe := NewDS18B20("28-0123456789abcd")
+	probe := NewDS18B20("28-0123456789abcd", "28-0123456789abcd")
 
 	// There is a dummy file to 'read' data from in this repo.
 	// Read data from there and make sure it looks ok

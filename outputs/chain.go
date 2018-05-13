@@ -1,4 +1,4 @@
-package handlers
+package outputs
 
 import (
 	multierror "github.com/hashicorp/go-multierror"

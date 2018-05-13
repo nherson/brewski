@@ -3,7 +3,7 @@ package device
 import (
 	"time"
 
-	"github.com/nherson/brewski/handlers"
+	"github.com/nherson/brewski/outputs"
 	"go.uber.org/zap"
 )
 
@@ -12,7 +12,7 @@ import (
 type Poller interface {
 	Start()
 	Stop()
-	SetCallback(handlers.Callback)
+	SetCallback(outputs.Callback)
 }
 
 // Sensor is a simple implementation of a TemperaturePoller
@@ -22,7 +22,7 @@ type Sensor struct {
 	logger   *zap.Logger
 	interval time.Duration
 	control  chan bool
-	callback handlers.Callback
+	callback outputs.Callback
 }
 
 // NewSensor creates a new polling sensor for a given device reader.
@@ -36,13 +36,13 @@ func NewSensor(r Reader, i time.Duration, l *zap.Logger) *Sensor {
 		logger:   l,
 		interval: i,
 		control:  make(chan bool, 1),
-		callback: handlers.NewStdoutCallback(),
+		callback: outputs.NewStdoutCallback(),
 	}
 }
 
 // SetCallback assigns a callback function for the sensor
 // for when polling is complete
-func (s *Sensor) SetCallback(scb handlers.Callback) {
+func (s *Sensor) SetCallback(scb outputs.Callback) {
 	s.callback = scb
 }
 

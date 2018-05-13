@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/BurntSushi/toml"
+  packages = ["."]
+  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
+  version = "v0.3.0"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -22,7 +28,7 @@
     "linux/hci/evt",
     "linux/hci/socket"
   ]
-  revision = "4f0cfa416e6b38f2cba99cb776d9e75ccf740713"
+  revision = "721d2405efb7924028deef3b0105219209fba482"
 
 [[projects]]
   branch = "master"
@@ -127,6 +133,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "322cc0ddc835bb5189ab635403100f8bf85bcd7d34f91c618ff08130a5bd3582"
+  inputs-digest = "4359ab93c07515d0ba3e7813b6474e18e1cf26a7b2e1bf79e2c41bb1c85cb3fb"
   solver-name = "gps-cdcl"
   solver-version = 1

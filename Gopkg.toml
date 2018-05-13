@@ -41,6 +41,11 @@
   name = "go.uber.org/zap"
   version = "1.7.1"
 
+[[constraint]]
+  name = "github.com/go-ble/ble"
+  revision = "721d2405efb7924028deef3b0105219209fba482"
+
 [prune]
   go-tests = true
   unused-packages = true
+

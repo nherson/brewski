@@ -32,18 +32,20 @@ var colorUUIDMap = map[string]string{
 // Tilt Hydometers.  This single device instance will track every
 // device color
 type TiltHydrometer struct {
+	name      string
 	bluetooth BluetoothScanner
 	data      recentData
 }
 
 // NewTiltHydrometer returns a new device capable of reading from a Tilt Hydrometer
-func NewTiltHydrometer() (*TiltHydrometer, error) {
+func NewTiltHydrometer(name string) (*TiltHydrometer, error) {
 	// This will immediately start scanning and holding on to discovered advertisements
 	b, err := newBluetoothScanner()
 	if err != nil {
 		return nil, err
 	}
 	return &TiltHydrometer{
+		name:      name,
 		bluetooth: b,
 		data:      newRecentData(),
 	}, nil
@@ -170,7 +172,7 @@ func isTiltHydrometer(a ble.Advertisement) (string, bool) {
 
 // Name returns the name of this device (tilt)
 func (th *TiltHydrometer) Name() string {
-	return "tilt"
+	return th.name
 }
 
 // BluetoothScanner is an interface to read data from a Bluetooth LE device
@@ -198,7 +200,13 @@ func newBluetoothScanner() (*bluetoothScanner, error) {
 	// the bluetoothScanner will blindly start gobbling up discovered advertisements
 	// and cache them away for consumption by callers of GetAdvertisements
 	go func() {
-		ble.Scan(context.Background(), true, bs.advHandler, nil)
+		for {
+			// Just keep doing short term scans
+			// Use a refreshing scan with a timeout in an infinite loop because there are issues
+			// with long running calls to Scan() no longer seeing data
+			ctx := ble.WithSigHandler(context.WithTimeout(context.Background(), 1*time.Minute))
+			ble.Scan(ctx, true, bs.advHandler, nil)
+		}
 	}()
 	return bs, nil
 }
