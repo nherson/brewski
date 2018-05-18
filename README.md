@@ -41,7 +41,7 @@ Output Methods Wishlist
 
 Developing
 ---
-Checkout the project with `go get -u github.com/nherson/brewski`. This project uses Glide for dependency management. Use `dep ensure` to pull in vendored libraries.
+Checkout the project with `go get -u github.com/nherson/brewski`. Use `dep ensure` to pull in vendored libraries.
 
 Additional Tools
 ---
