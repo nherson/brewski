@@ -40,13 +40,14 @@ type GlobalConfig struct {
 	OnesireSysfsDir string   `toml:"onewire-sysfs-dir"`
 }
 
-// Devices holds configuration data for each device being setup for use
+// DevicesConfig holds configuration data for each device being setup for use
 type DevicesConfig struct {
 	DS18B20s     map[string]*DS18B20Config     `toml:"ds18b20"`
 	Tilts        map[string]*TiltConfig        `toml:"tilt"`
 	DummyDevices map[string]*DummyDeviceConfig `toml:"dummy-device"`
 }
 
+// AllDeviceConfigs returns a mapping from device names to their configuration
 func (d *DevicesConfig) AllDeviceConfigs() (map[string]DeviceConfig, error) {
 	deviceConfigs := make(map[string]DeviceConfig)
 	for name, deviceConfig := range d.DS18B20s {
@@ -70,12 +71,13 @@ func (d *DevicesConfig) AllDeviceConfigs() (map[string]DeviceConfig, error) {
 	return deviceConfigs, nil
 }
 
-// Outputs holds configuration data for each output being setup for use
+// OutputsConfig holds configuration data for each output being setup for use
 type OutputsConfig struct {
 	Logs      map[string]*LogConfig      `toml:"log"`
 	Influxdbs map[string]*InfluxdbConfig `toml:"influxdb"`
 }
 
+// AllOutputConfigs returns a mapping between an output name and its OutputConfig
 func (d *OutputsConfig) AllOutputConfigs() (map[string]OutputConfig, error) {
 	outputConfigs := make(map[string]OutputConfig)
 	for name, outputConfig := range d.Logs {
@@ -123,20 +125,26 @@ func (c *DS18B20Config) GenerateDevice(name string) (device.Reader, error) {
 	return device.NewDS18B20(name, c.ID), nil
 }
 
+// OutputNames returns the names of the outputs configured for this
+// DS18B20 device
 func (c *DS18B20Config) OutputNames() []string {
 	return c.Outputs
 }
 
 // TiltConfig holds configuration data about a fleet of Tilt Hydrometers (all colors)
 type TiltConfig struct {
-	Outputs []string `toml:"outputs"`
+	TemperatureCalibration float32  `toml:"temperature_calibration"` // defaults to 0
+	GravityCalibration     float32  `toml:"gravity_calibration"`     // defaults to 0
+	Outputs                []string `toml:"outputs"`
 }
 
 // GenerateDevice creates a TiltHydrometer device from a given configuration
 func (c *TiltConfig) GenerateDevice(name string) (device.Reader, error) {
-	return device.NewTiltHydrometer(name)
+	return device.NewTiltHydrometer(name, c.GravityCalibration, c.TemperatureCalibration)
 }
 
+// OutputNames returns the names of the outputs configured for this
+// tilt hydrometer configuration
 func (c *TiltConfig) OutputNames() []string {
 	return c.Outputs
 }
@@ -152,6 +160,8 @@ func (c *DummyDeviceConfig) GenerateDevice(name string) (device.Reader, error) {
 	return device.NewDummyDevice(name, c.PossibleValues...), nil
 }
 
+// OutputNames returns the names of the outputs configured for this
+// dummy device configuration
 func (c *DummyDeviceConfig) OutputNames() []string {
 	return c.Outputs
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -32,22 +33,26 @@ var colorUUIDMap = map[string]string{
 // Tilt Hydometers.  This single device instance will track every
 // device color
 type TiltHydrometer struct {
-	name      string
-	bluetooth BluetoothScanner
-	data      recentData
+	name               string
+	bluetooth          BluetoothScanner
+	data               recentData
+	tempCalibration    float32
+	gravityCalibration float32
 }
 
 // NewTiltHydrometer returns a new device capable of reading from a Tilt Hydrometer
-func NewTiltHydrometer(name string) (*TiltHydrometer, error) {
+func NewTiltHydrometer(name string, gravityCalibration, tempCalibration float32) (*TiltHydrometer, error) {
 	// This will immediately start scanning and holding on to discovered advertisements
 	b, err := newBluetoothScanner()
 	if err != nil {
 		return nil, err
 	}
 	return &TiltHydrometer{
-		name:      name,
-		bluetooth: b,
-		data:      newRecentData(),
+		name:               name,
+		bluetooth:          b,
+		data:               newRecentData(),
+		gravityCalibration: gravityCalibration,
+		tempCalibration:    tempCalibration,
 	}, nil
 }
 
@@ -124,8 +129,8 @@ func (th *TiltHydrometer) Read() ([]measurement.Sample, error) {
 		}
 		sample := measurement.NewDeviceSample("tilt")
 		sample.AddTag("color", color)
-		sample.AddDatapoint("temperature", data.temperature, t)
-		sample.AddDatapoint("gravity", data.gravity, t)
+		sample.AddDatapoint("temperature", data.temperature+th.tempCalibration, t)
+		sample.AddDatapoint("gravity", data.gravity+th.gravityCalibration, t)
 		samples = append(samples, sample)
 	}
 	// Clear the recent data counts to prepare for the next read window
